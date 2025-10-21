@@ -51,3 +51,26 @@ Each document contains:
 1. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
+ ```
+
+2. **Run the app**
+ ```bash
+ python app.py
+ ```
+
+3. **Endpoint Health Check**
+```bash
+curl -X GET "http://127.0.0.1:8000/stats"
+```
+
+4. **To query the endpoint**
+ ```bash
+ curl -X POST "http://127.0.0.1:8000/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Which funds have the best Sharpe ratio?",
+    "retrieval_mode": "hybrid",
+    "top_k": 5
+  }'
+
+```

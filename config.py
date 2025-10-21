@@ -3,11 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    # Data paths
     FAQS_PATH = "data/faqs.csv"
     PERFORMANCE_PATH = "data/funds.csv"
     
-    # Embedding settings
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     EMBEDDING_DIM = 384
     

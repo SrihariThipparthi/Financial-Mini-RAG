@@ -48,7 +48,7 @@ def generate_answer(query: str, retrieved_docs: List[Dict]) -> str:
     if faq_docs or not fund_docs:
         if faq_docs:
             answer_parts.append("\nRelated information:")
-            for doc in faq_docs[:3]:  # Top 2 FAQs
+            for doc in faq_docs[:3]:
                 metadata = doc.get('metadata', {})
                 answer = metadata.get('answer', doc['content'])
                 answer_parts.append(f"- {answer}")
