@@ -9,7 +9,6 @@ class DataLoader:
         self.performance_path = performance_path
         
     def load_faqs(self) -> List[Dict[str, Any]]:
-        """Load and process FAQs data"""
         try:
             df = pd.read_csv(self.faqs_path)
             documents = []
@@ -33,16 +32,13 @@ class DataLoader:
             return []
     
     def load_performance_data(self) -> List[Dict[str, Any]]:
-        """Load and process performance data"""
         try:
             df = pd.read_csv(self.performance_path)
             documents = []
             
             for _, row in df.iterrows():
-                # Create textual representation of fund metrics
                 fund_text = f"{row['fund_name']} ({row['category']}) has "
                 
-                # Add available metrics
                 metrics = []
                 if 'cagr_3yr (%)' in row:
                     metrics.append(f"3-year CAGR: {row['cagr_3yr (%)']}%")
@@ -75,7 +71,6 @@ class DataLoader:
             return []
     
     def load_all_data(self) -> List[Dict[str, Any]]:
-        """Load both FAQs and performance data"""
         faqs = self.load_faqs()
         funds = self.load_performance_data()
         all_data = faqs + funds

@@ -18,22 +18,18 @@ class MiniRAGRetriever:
         self.document_embeddings = None
         
     def preprocess_text(self, text: str) -> str:
-        """Basic text preprocessing"""
         text = text.lower().strip()
         text = re.sub(r'[^\w\s]', '', text)
         return text
     
     def build_indices(self, documents: List[Dict[str, Any]]):
-        """Build both semantic and lexical indices"""
         self.documents = documents
         texts = [doc['content'] for doc in documents]
         
-        # Build semantic index (FAISS)
         self.document_embeddings = self.embedding_model.encode(texts)
         self.faiss_index = faiss.IndexFlatIP(self.config.EMBEDDING_DIM)
         self.faiss_index.add(self.document_embeddings.astype('float32'))
         
-        # Build lexical index (TF-IDF)
         self.tfidf_vectorizer = TfidfVectorizer(
             lowercase=True,
             stop_words='english',
@@ -42,14 +38,12 @@ class MiniRAGRetriever:
         self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(texts)
     
     def semantic_search(self, query: str, top_k: int = None) -> List[Tuple[int, float]]:
-        """Perform semantic search using FAISS"""
         if top_k is None:
             top_k = self.config.TOP_K
             
         query_embedding = self.embedding_model.encode([query])
         query_embedding = query_embedding.astype('float32')
         
-        # FAISS returns similarities (cosine similarity)
         similarities, indices = self.faiss_index.search(query_embedding, top_k)
         
         results = []
@@ -60,14 +54,12 @@ class MiniRAGRetriever:
         return results
     
     def lexical_search(self, query: str, top_k: int = None) -> List[Tuple[int, float]]:
-        """Perform lexical search using TF-IDF"""
         if top_k is None:
             top_k = self.config.TOP_K
             
         query_vec = self.tfidf_vectorizer.transform([query])
         similarities = cosine_similarity(query_vec, self.tfidf_matrix).flatten()
         
-        # Get top_k indices
         top_indices = np.argsort(similarities)[::-1][:top_k]
         
         results = []
@@ -78,30 +70,24 @@ class MiniRAGRetriever:
         return results
     
     def hybrid_search(self, query: str, top_k: int = None) -> List[Tuple[int, float]]:
-        """Combine semantic and lexical search"""
         if top_k is None:
             top_k = self.config.TOP_K
             
         semantic_results = self.semantic_search(query, top_k * 2)
         lexical_results = self.lexical_search(query, top_k * 2)
         
-        # Create score dictionary
         scores = {}
         
-        # Add semantic scores
         for idx, score in semantic_results:
             scores[idx] = scores.get(idx, 0) + score * self.config.SEMANTIC_WEIGHT
         
-        # Add lexical scores
         for idx, score in lexical_results:
             scores[idx] = scores.get(idx, 0) + score * self.config.LEXICAL_WEIGHT
         
-        # Sort by combined score and return top_k
         sorted_results = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
         return [(idx, score) for idx, score in sorted_results]
     
     def retrieve(self, query: str, mode: str = "semantic", top_k: int = None) -> List[Dict[str, Any]]:
-        """Main retrieval function"""
         if top_k is None:
             top_k = self.config.TOP_K
             

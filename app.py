@@ -99,7 +99,6 @@ async def query_financial_data(request: QueryRequest):
 
 @app.get("/stats")
 async def get_stats():
-    """Get system statistics"""
     faq_count = len([doc for doc in documents if doc['type'] == 'faq'])
     fund_count = len([doc for doc in documents if doc['type'] == 'fund'])
     
